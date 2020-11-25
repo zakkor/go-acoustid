@@ -13,13 +13,19 @@ type Fingerprint struct {
 }
 
 func NewFingerprint(file string) Fingerprint {
+	var err error
+
 	fp := Fingerprint{}
 
-	fpcalc := "./fpcalc"
-	if os.Getenv("FPCALC_BINARY_PATH") == "" {
-	} else {
-		fpcalc = os.Getenv("FPCALC_BINARY_PATH")
+	fpcalc := os.Getenv("FPCALC_BINARY_PATH")
+	if fpcalc == "" {
+		fpcalc, err = exec.LookPath("fpcalc")
+		if err != nil {
+			// try fpcalc in the current dir
+			fpcalc = "./fpcalc"
+		}
 	}
+
 	out, err := exec.Command(fpcalc, file).Output()
 	if err != nil {
 		panic(err)
